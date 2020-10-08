@@ -2,9 +2,7 @@ public class Board{
 
 	//ゲーム実行中フラグ
 	static boolean game = true;
-	
-	
-	
+		
 	//チェス版に対応した多次元配列
 	static String[][] board = new String [8][8];
 	
@@ -17,15 +15,14 @@ public class Board{
 	static final String BISHOP = "B";
 	static final String KNIGHT ="N";//キングとイニシャルがかぶるためNに変更
 	static final String PAWN = "P";
-	static public int[] bk ={0,3};
-	static public int[] wk ={7,3};
-	static public int check = 0;	
-	static String turn;//先行
-	static String nex_turn;//後攻
+	static public int[] bk ={0,3};//黒のキングの現在位置
+	static public int[] wk ={7,3};//白のキングの現在位置
+	static public int check = 0;//チェック判定　1ならばチェックされています。
+	static String turn;//現在のターン
+	static String nex_turn;//次のターン
 	
-	static public void initialize(){
+	static public void initialize(){//チェス版の要素を全てクリアする
 	
-		//チェス版の要素を全てクリアする
 		for(int i = 0 ; i < 8; i++){
 			
 			for (int j = 0 ; j < 8 ; j++){
@@ -78,12 +75,8 @@ public class Board{
 		game = true;
 		
 	}
-	static public void showBoard(){
-		
-		//まだ空いている座表があるか
-		boolean existempty = false;
-		
-		//チェス版を描画する
+	static public void showBoard(){//チェス版を描画する
+	
 		int i = 0;
 		System.out.println("  |0 |1 |2 |3 |4 |5 |6 |7 |");
 		System.out.println("___________________________");
@@ -92,31 +85,21 @@ public class Board{
 			System.out.print(i + " |");
 			for(String s : sarr){
 				
-				System.out.print(s + "|");
-			
+			System.out.print(s + "|");
 				
-				//空いている座表があるか、各駒数の集計
-				if(s.equals(EMPTY)){
-				
-					existempty = true;	
-				}			
-			}	
+		}	
 			System.out.println();
 			System.out.println("___________________________");
 				
 			i++;
 		}
-		if(existempty){
+		
 			System.out.println(turn + "のターンです");	
 			if(check == 1){
 				System.out.println("チェック！");	
 			}
-		}else{
-			System.out.println( "ゲーム終了！");	
-			game = false;
-		}
 	}
-	static public void yourTurnSet( int x,int y,int a,int b){
+	static public void yourTurnSet( int x,int y,int a,int b){//指定位置にコマを移動させる
 		check = 0;
 		//ボード外の座標を指定した場合の例外処理
 		try{
@@ -124,22 +107,14 @@ public class Board{
 			if(board[y][x].equals(turn + PAWN)){
 				pawnAction(x , y , a , b);
 				
-				if(board[y][x].equals(EMPTY)){
-						String cng_turn = turn;
-						turn = nex_turn;
-						nex_turn = cng_turn;
-				}
+				turnChange(x,y);//白と黒のターン切り替え
 				showBoard();
 
 			//ルーク
 			}else if(board[y][x].equals(turn + ROOK)){
 				rookAction(x , y , a , b);
 			
-			if(board[y][x].equals(EMPTY)){
-						String cng_turn = turn;
-						turn = nex_turn;
-						nex_turn = cng_turn;
-				}
+				turnChange(x,y);
 				showBoard();	
 				
 				
@@ -147,22 +122,14 @@ public class Board{
 			}else if(board[y][x].equals(turn + KNIGHT)){
 				knightAction(x , y , a , b);
 				
-				if(board[y][x].equals(EMPTY)){
-						String cng_turn = turn;
-						turn = nex_turn;
-						nex_turn = cng_turn;
-				}
+				turnChange(x,y);
 				showBoard();
 				
 				//ビショップ
 			}else if(board[y][x].equals(turn + BISHOP)){
 				bishopAction(x , y , a , b);
 				
-				if(board[y][x].equals(EMPTY)){
-						String cng_turn = turn;
-						turn = nex_turn;
-						nex_turn = cng_turn;
-				}
+				turnChange(x,y);
 				showBoard();
 				
 				
@@ -170,28 +137,20 @@ public class Board{
 			}else if(board[y][x].equals(turn + KING)){
 				kingAction(x , y , a , b);
 				
-				if(board[y][x].equals(EMPTY)){
-					String cng_turn = turn;
-					turn = nex_turn;
-					nex_turn = cng_turn;
-				}
-				
+				turnChange(x,y);
 				showBoard();
+				
 				//クイーン
 			}else if(board[y][x].equals(turn + QUEEN)){
 				queenAction(x , y , a , b);
 				
-				if(board[y][x].equals(EMPTY)){
-					String cng_turn = turn;
-					turn = nex_turn;
-					nex_turn = cng_turn;
-				}
-				
+				turnChange(x,y);
 				showBoard();
+				
 			}else{
 				System.out.println("不正な操作です");
 				showBoard();
-			}
+			}//KINGが取られた時にゲームを終了する
 			if(turn == WHITE && !(board[wk[0]][wk[1]].equals(WHITE + KING))){
 				System.out.println("ゲーム終了" +nex_turn +"の勝ち！");
 			}else if(turn == BLACK && !(board[bk[0]][bk[1]].equals(BLACK + KING))){
@@ -279,8 +238,7 @@ public class Board{
 			if(b == 0){//昇格
 				board[b][a] = WHITE + QUEEN;
 			}			
-		}
-		
+		}		
 	}
 	//ルークアクション
 	static public void rookAction(int x,int y,int a,int b){
@@ -333,8 +291,7 @@ public class Board{
 					}
 				}
 			}//チェック判定
-			
-		
+					
 			for (int q = 1; q <= 7 ;q++){
 				if( b + q <= 7){//下
 					if(board[b + q][a].equals(WHITE + KING) ){
@@ -425,8 +382,7 @@ public class Board{
 					}
 				}
 			}
-			
-		
+					
 			//チェック判定
 			for (int q = 1;q <= 7;q++){
 				if( b + q <= 7){//下
@@ -803,8 +759,13 @@ public class Board{
 				board[b][a] = WHITE + QUEEN;
 			
 		}
+		
 	}
-		
-		
-	
+	static public void turnChange(int x, int y){//白と黒のターンの切り替え
+		if(board[y][x].equals(EMPTY)){
+							String cng_turn = turn;
+							turn = nex_turn;
+							nex_turn = cng_turn;
+		}	
+	}
 }
